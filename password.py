@@ -48,21 +48,23 @@ def generate_password():
 
 
 if __name__ == "__main__":
-    db_path = "passwords.db"
     for i in range(2):
-        if os.path.isfile(db_path):
+        if os.path.isfile(db_manager.db_path):
             # Database already exists
             password = input("Please enter your password: ")
-            db = sqlite3.connect(db_path)
+            db = sqlite3.connect(db_manager.db_path)
             cursor = db.cursor()
             cursor.execute("SELECT password FROM master")
             all_rows = cursor.fetchall()
+            db.commit()
+            db.close()
             masterpassword = all_rows[0][0]
             if hash_manager.verify_password(masterpassword, password):
                 print("Welcome")
                 print("Use add [service-name] [password/g] to add a new password or generate a secure password")
                 print("Use get [service-name/*] to look up the according password or all passwords")
                 print("Use remove [service] to remove a service from the database")
+                print("Use reset to delete all services and the masterpassword")
                 print("Use quit to stop the program and clean the command line")
                 while True:
                     user_input = input()
@@ -73,7 +75,7 @@ if __name__ == "__main__":
                         if len(rows) == 0:
                             print("You have not added any services yet.")
                             continue
-                            
+
                         if user_input.split()[1] == '*':
                             for row in rows:
                                 print("service: %s, password: %s"  %(row[0], decrypt(bytes(row[1]), masterpassword).decode()))
@@ -120,6 +122,19 @@ if __name__ == "__main__":
                         else:
                             print("The service '%s' was not found!" %(service))
 
+                    elif "RESET" in user_input.upper():
+                        if len(user_input.split()) != 1:
+                            print("Use reset to delete all services and the masterpassword")
+                            continue
+
+                        confirmation = input("Do you want to delete everything ? Enter your masterpassword to continue! Enter 'n' to stop.\n")
+                        if confirmation == password:
+                            os.remove(db_manager.db_path)
+                            print("The database was removed")
+                            exit()
+                        else:
+                            print("Nothing was deleted!")
+                            continue
 
             else:
                 print("Wrong password!")
@@ -135,7 +150,7 @@ if __name__ == "__main__":
                     print("Please enter both times the same password")
                 else:
                     break
-            db = sqlite3.connect(db_path)
+            db = sqlite3.connect(db_manager.db_path)
             cursor = db.cursor()
             cursor.execute("INSERT INTO master (password) VALUES(?)", (hash_manager.hash_password(masterpassword), ))
             db.commit()

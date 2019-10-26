@@ -1,7 +1,7 @@
 import sqlite3
 
 
-db_path = "passwords.db"
+db_path = "J:\CMD\passwords.db"
 
 def create_tables():
     db = sqlite3.connect(db_path)
@@ -37,7 +37,7 @@ def remove_service(service):
     cursor.execute("DELETE FROM passwords WHERE service = ?", (service, ))
     db.commit()
     db.close()
-    
+
 
 def is_existing(service):
     rows = get_all_rows()
