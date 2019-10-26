@@ -8,6 +8,7 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 import secrets
+import string
 
 
 backend = default_backend()
@@ -41,6 +42,10 @@ def decrypt(token: bytes, password: str) -> bytes:
     return Fernet(key).decrypt(token)
 
 
+def generate_password():
+    alphabet = string.ascii_letters + string.digits
+    return ''.join(secrets.choice(alphabet) for i in range(20)) # generates a password with the length 20
+
 
 if __name__ == "__main__":
     db_path = "passwords.db"
@@ -55,8 +60,9 @@ if __name__ == "__main__":
             masterpassword = all_rows[0][0]
             if hash_manager.verify_password(masterpassword, password):
                 print("Welcome")
-                print("Use add [service-name] [password] to add a new password")
+                print("Use add [service-name] [password/g] to add a new password or generate a secure password")
                 print("Use get [service-name] to look up the according password")
+                print("Use quit to stop the program")
                 while True:
                     user_input = input()
                     if "GET" in user_input.upper():
@@ -65,8 +71,16 @@ if __name__ == "__main__":
                             if row[0].upper() in user_input.split()[1].upper():
                                 print("Service: %s, password: %s"  %(row[0], decrypt(bytes(row[1]), masterpassword).decode()))
                     elif "ADD" in user_input.upper():
-                        db_manager.add_password(user_input.split()[1], encrypt(user_input.split()[2].encode(), masterpassword))
-                        print("Your password was added successfully")
+                        if user_input.split()[2] == 'g':
+                            db_manager.add_password(user_input.split()[1], encrypt(generate_password().encode(), masterpassword))
+                            print("Your password was added successfully")
+                            print("You can access is with get %s" %(user_input.split()[1]))
+                        else:
+                            db_manager.add_password(user_input.split()[1], encrypt(user_input.split()[2].encode(), masterpassword))
+                            print("Your password was added successfully")
+                            print("You can access is with get %s" %(user_input.split()[1]))
+                    elif "QUIT" in user_input.upper():
+                        exit()
                     else:
                         pass
 
