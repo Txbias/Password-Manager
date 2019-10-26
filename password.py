@@ -66,15 +66,27 @@ if __name__ == "__main__":
                 print("Use quit to stop the program and clean the command line")
                 while True:
                     user_input = input()
+
                     if "GET" in user_input.upper():
                         rows = db_manager.get_all_rows()
+
+                        if len(rows) == 0:
+                            print("You have not added any services yet.")
+                            continue
+                            
                         if user_input.split()[1] == '*':
                             for row in rows:
                                 print("service: %s, password: %s"  %(row[0], decrypt(bytes(row[1]), masterpassword).decode()))
                         else:
+                            found_service = False
                             for row in rows:
                                 if row[0].upper() in user_input.split()[1].upper():
+                                    found_service = True
                                     print("service: %s, password: %s"  %(row[0], decrypt(bytes(row[1]), masterpassword).decode()))
+
+                            if not found_service:
+                                print("You have no service called '%s'." %(user_input.split()[1]))
+
                     elif "ADD" in user_input.upper():
                         if db_manager.is_existing(user_input.split()[1]):
                             print("This service is already existing!")
@@ -87,9 +99,11 @@ if __name__ == "__main__":
                             db_manager.add_password(user_input.split()[1], encrypt(user_input.split()[2].encode(), masterpassword))
                             print("The service '%s' was added." %(user_input.split()[1]))
                             print("You can access is with get %s" %(user_input.split()[1]))
+
                     elif "QUIT" in user_input.upper():
                         os.system('cls')
                         exit()
+
                     elif "REMOVE" in user_input.upper():
                         if len(user_input.split()) != 2:
                             print("Usage: remove [service]")
