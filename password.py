@@ -63,7 +63,7 @@ if __name__ == "__main__":
                 print("Use add [service-name] [password/g] to add a new password or generate a secure password")
                 print("Use get [service-name/*] to look up the according password or all passwords")
                 print("Use remove [service] to remove a service from the database")
-                print("Use quit to stop the program")
+                print("Use quit to stop the program and clean the command line")
                 while True:
                     user_input = input()
                     if "GET" in user_input.upper():
@@ -88,6 +88,7 @@ if __name__ == "__main__":
                             print("The service '%s' was added." %(user_input.split()[1]))
                             print("You can access is with get %s" %(user_input.split()[1]))
                     elif "QUIT" in user_input.upper():
+                        os.system('cls')
                         exit()
                     elif "REMOVE" in user_input.upper():
                         if len(user_input.split()) != 2:
