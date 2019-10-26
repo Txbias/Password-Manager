@@ -61,15 +61,19 @@ if __name__ == "__main__":
             if hash_manager.verify_password(masterpassword, password):
                 print("Welcome")
                 print("Use add [service-name] [password/g] to add a new password or generate a secure password")
-                print("Use get [service-name] to look up the according password")
+                print("Use get [service-name/*] to look up the according password or all passwords")
                 print("Use quit to stop the program")
                 while True:
                     user_input = input()
                     if "GET" in user_input.upper():
                         rows = db_manager.get_all_rows()
-                        for row in rows:
-                            if row[0].upper() in user_input.split()[1].upper():
-                                print("Service: %s, password: %s"  %(row[0], decrypt(bytes(row[1]), masterpassword).decode()))
+                        if user_input.split()[1] == '*':
+                            for row in rows:
+                                print("service: %s, password: %s"  %(row[0], decrypt(bytes(row[1]), masterpassword).decode()))
+                        else:
+                            for row in rows:
+                                if row[0].upper() in user_input.split()[1].upper():
+                                    print("service: %s, password: %s"  %(row[0], decrypt(bytes(row[1]), masterpassword).decode()))
                     elif "ADD" in user_input.upper():
                         if user_input.split()[2] == 'g':
                             db_manager.add_password(user_input.split()[1], encrypt(generate_password().encode(), masterpassword))
