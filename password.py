@@ -75,6 +75,9 @@ if __name__ == "__main__":
                                 if row[0].upper() in user_input.split()[1].upper():
                                     print("service: %s, password: %s"  %(row[0], decrypt(bytes(row[1]), masterpassword).decode()))
                     elif "ADD" in user_input.upper():
+                        if db_manager.is_existing(user_input.split()[1]):
+                            print("This service is already existing!")
+                            continue
                         if user_input.split()[2] == 'g':
                             db_manager.add_password(user_input.split()[1], encrypt(generate_password().encode(), masterpassword))
                             print("Your password was added successfully")

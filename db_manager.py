@@ -29,4 +29,12 @@ def add_password(service, password):
     cursor.execute("INSERT INTO passwords (service, password) VALUES(?, ?)", (service, password))
     db.commit()
     db.close()
-     
+
+
+def is_existing(service):
+    rows = get_all_rows()
+    for row in rows:
+        if row[0].upper() == service.upper():
+            return True
+
+    return False
