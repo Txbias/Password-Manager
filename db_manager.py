@@ -31,6 +31,14 @@ def add_password(service, password):
     db.close()
 
 
+def remove_service(service):
+    db = sqlite3.connect(db_path)
+    cursor = db.cursor()
+    cursor.execute("DELETE FROM passwords WHERE service = ?", (service, ))
+    db.commit()
+    db.close()
+    
+
 def is_existing(service):
     rows = get_all_rows()
     for row in rows:

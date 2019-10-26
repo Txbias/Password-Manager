@@ -62,6 +62,7 @@ if __name__ == "__main__":
                 print("Welcome")
                 print("Use add [service-name] [password/g] to add a new password or generate a secure password")
                 print("Use get [service-name/*] to look up the according password or all passwords")
+                print("Use remove [service] to remove a service from the database")
                 print("Use quit to stop the program")
                 while True:
                     user_input = input()
@@ -80,16 +81,29 @@ if __name__ == "__main__":
                             continue
                         if user_input.split()[2] == 'g':
                             db_manager.add_password(user_input.split()[1], encrypt(generate_password().encode(), masterpassword))
-                            print("Your password was added successfully")
+                            print("The service '%s' was added with a secure password." %(user_input.split()[1]))
                             print("You can access is with get %s" %(user_input.split()[1]))
                         else:
                             db_manager.add_password(user_input.split()[1], encrypt(user_input.split()[2].encode(), masterpassword))
-                            print("Your password was added successfully")
+                            print("The service '%s' was added." %(user_input.split()[1]))
                             print("You can access is with get %s" %(user_input.split()[1]))
                     elif "QUIT" in user_input.upper():
                         exit()
-                    else:
-                        pass
+                    elif "REMOVE" in user_input.upper():
+                        if len(user_input.split()) != 2:
+                            print("Usage: remove [service]")
+                            continue
+
+                        service = user_input.split()[1]
+                        if db_manager.is_existing(service):
+                            confirmation = input("Do you want to remove '%s'? The password will be lost forever! [y/n]\n" %(service))
+                            if confirmation.lower() == 'y':
+                                db_manager.remove_service(service)
+                                print("Service '%s' was removed!" %(service))
+                            else:
+                                print("Service '%s' was not removed!" %(service))
+                        else:
+                            print("The service '%s' was not found!" %(service))
 
 
             else:
